@@ -70,7 +70,7 @@
 			ctx.fillRect(0,0,cw,ch);
 		}
 		function drawWords(w,color,fontSize){
-			ctx.font="bold italic "+(fontSize || 50)+"px '微软雅黑'";
+			ctx.font="900 italic "+(fontSize || 50)+"px '微软雅黑'";
 			ctx.fillStyle = color || "#ff0000";
 			ctx.textAlign = "center";
 			ctx.textBaseline = "middle";
@@ -104,12 +104,12 @@
 		}
 		function fillLogo(){
 			ctx.fillStyle="#ff0000";
-			var w = cw-15;
-			var h = 70;
-			var x = 7;
+			var x = 25;
+			var h = 60;
+			var w = cw-x*2;
 			var y = ch/2-(h-10)/2;
 			ctx.fillRect(x,y,w,h);
-			drawWords('Supreme','#ffffff');
+			drawWords('Supreme','#ffffff',44);
 		}
 		function load(){
 			var img = new Image();
