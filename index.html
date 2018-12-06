@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+	<meta charset="UTF-8">
+	<title>Supreme生成器</title>
+</head>
+<body>
+	<div>
+		<input type="file" id="upload" accept="image/x-png, image/jpg, image/jpeg, image/gif" />
+		<button onclick="download()">下载</button>
+	</div>
+	<canvas id="canvas"></canvas>
+	<div class="preview" id="preview">
+		
+	</div>
+	<script type="text/javascript">
+		var canvas = document.getElementById('canvas');
+		var ctx = canvas.getContext('2d');
+		var cw = canvas.width;
+		var ch = canvas.height;
+		var flag = 0;
+
+		var background = '';
+		var words = 'Supreme';
+
+		upload.onchange = function(){
+			preview(this.files);
+		}
+		function preview(files){
+			if(window.FileReader){
+				var file;
+				for (var i = 0; i < files.length; i++) {
+					file = files[i];
+					var _fileReader = new FileReader();
+					_fileReader.onload = function(event){
+						var path = event.target.result;
+						showImg(path);
+					}
+					_fileReader.error = function(){
+						console.error('上传失败');
+					}
+					_fileReader.readAsDataURL(file);
+
+				}
+			}else{
+				if (!/\.jpg$|\.png$|\.gif$/i.test(file.value)) {
+				 	console.log('格式错误');
+				 } else {
+				 	showImg(file.value);
+				 }
+			}
+		}
+		function showImg(src){
+			var pre = document.getElementById('preview');
+			var img = new Image();
+			img.src = src;
+			pre.innerHTML = '';
+			// pre.appendChild(img);
+			drawImg(img);
+		}
+		function setCanvas(h){
+			ch = h || 500;
+			cw = 160*ch/280;
+			canvas.height = ch;
+			canvas.width = cw;
+		}
+		function reset(){
+			ctx.fillStyle="#ffff00";
+			ctx.fillRect(0,0,cw,ch);
+		}
+		function drawWords(w,color,fontSize){
+			ctx.font="bold italic "+(fontSize || 50)+"px Monaco";
+			ctx.fillStyle = color || "#ff0000";
+			ctx.textAlign = "center";
+			ctx.textBaseline = "middle";
+			ctx.fillText(w,cw/2,ch/2);
+		}
+		function drawImg(img){
+			img.onload = function(){
+				var w = this.width;
+				var h = this.height;
+				var renderWidth = ch*w/h;
+				var renderHeight = ch;
+				var x = cw/2 - renderWidth/2;
+				var y = 0;
+				reset();
+				ctx.drawImage(this,x,y,renderWidth,renderHeight);
+				grayFilter();
+				fillLogo();
+				flag = 1;
+			}
+		}
+		function grayFilter(){
+			var imgData = ctx.getImageData(0, 0, cw, ch);
+			var d = imgData.data;
+			for (var i = 0, len = d.length; i < len; i+=4){
+				var r = d[i],
+				    g = d[i+1],
+				    b = d[i+2];
+				d[i] = d[i+1] = d[i+2] = (r+g+b)/3;
+			}
+			ctx.putImageData(imgData, 0, 0);
+		}
+		function fillLogo(){
+			ctx.fillStyle="#ff0000";
+			var w = cw-15;
+			var h = 70;
+			var x = 7;
+			var y = ch/2-(h-10)/2;
+			ctx.fillRect(x,y,w,h);
+			drawWords('Supreme','#ffffff');
+		}
+		function load(){
+			var img = new Image();
+			img.src = ctx.toDataURL("image/*");
+		}
+		function download(name,type) {
+			if(!flag){
+				return false;
+			}
+		    var name = name || '未命名'+(+(new Date))+'.png';
+		    var type = "image/png";
+		    function base64Img2Blob(code) {
+		        var parts = code.split(';base64,');
+		        var contentType = parts[0].split(':')[1];
+		        var raw = window.atob(parts[1]);
+		        var rawLength = raw.length;
+		        var uInt8Array = new Uint8Array(rawLength);
+		        for (var i = 0; i < rawLength; ++i) {
+		            uInt8Array[i] = raw.charCodeAt(i);
+		        }
+		        return new Blob([uInt8Array], {
+		            type: contentType
+		        });
+
+		    }
+
+		    function downloadFile(fileName, content) {
+		        var aLink = document.createElement('a');
+		        var blob = base64Img2Blob(content); //new Blob([content]);
+		        var evt = document.createEvent("HTMLEvents");
+		        evt.initEvent("click", false, false); //initEvent 不加后两个参数在FF下会报错
+		        aLink.download = fileName;
+		        aLink.href = URL.createObjectURL(blob);
+		        aLink.dispatchEvent(evt);
+		    }
+
+		    var saveFile = function(data, filename){
+		        var save_link = document.createElementNS('http://www.w3.org/1999/xhtml', 'a');
+		        save_link.href = data;
+		        save_link.download = filename;
+
+		        var event = document.createEvent('MouseEvents');
+		        event.initMouseEvent('click', true, false, window, 0, 0, 0, 0, 0, false, false, false, false, 0, null);
+		        save_link.dispatchEvent(event);
+		    };
+		    saveFile(canvas.toDataURL(type),name);
+		}
+		setCanvas();
+		// reset();
+
+	</script>
+</body>
+</html>
